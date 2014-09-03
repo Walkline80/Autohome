@@ -25,7 +25,7 @@ public class AutohomeSDK
 
 	private TopicList getTopicList(JSONObject jsonObject) throws AutohomeException {return new AutohomeTopicList(this, jsonObject);}
 	public TopicList getTopicList(String page) throws AutohomeException {return getTopicList(page, null);}
-	public TopicList getTopicList(final String page, final Object state)
+	private TopicList getTopicList(final String page, final Object state)
 	{
 		TopicList result = null;
 		JSONObject jsonObject = new JSONObject();
