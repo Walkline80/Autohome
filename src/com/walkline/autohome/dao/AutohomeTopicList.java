@@ -37,7 +37,7 @@ public class AutohomeTopicList extends AutohomeObject implements TopicList
 				_row_count = result.optInt("rowcount");
 			}
 
-			JSONArray listArray = topicList.optJSONArray("list");
+			JSONArray listArray = result.optJSONArray("list");
 			if (listArray != null)
 			{
 				JSONObject topicObject;

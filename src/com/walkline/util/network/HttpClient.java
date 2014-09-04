@@ -28,7 +28,8 @@ public class HttpClient
 			conn = (HttpConnection) connd.getConnection();
 
 			conn.setRequestProperty(HttpProtocolConstants.HEADER_CONNECTION, HttpProtocolConstants.HEADER_KEEP_ALIVE);
-			conn.setRequestProperty(HttpProtocolConstants.HEADER_USER_AGENT, System.getProperty("browser.useragent"));//"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1985.143 Safari/537.36");
+			//conn.setRequestProperty(HttpProtocolConstants.HEADER_USER_AGENT, System.getProperty("browser.useragent"));//"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1985.143 Safari/537.36");
+			//conn.setRequestProperty(HttpProtocolConstants.HEADER_REFERER, "http://www.weather.com.cn");
 
 			int resCode = conn.getResponseCode();
 

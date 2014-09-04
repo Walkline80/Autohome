@@ -3,7 +3,9 @@ package com.walkline.screen;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Vector;
+
 import javax.microedition.io.HttpConnection;
+
 import net.rim.device.api.io.IOUtilities;
 import net.rim.device.api.io.http.HttpProtocolConstants;
 import net.rim.device.api.io.transport.ConnectionDescriptor;
@@ -15,10 +17,11 @@ import net.rim.device.api.ui.FontManager;
 import net.rim.device.api.ui.Ui;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.container.MainScreen;
-import com.walkline.autohome.AutohomeException;
+
 import com.walkline.autohome.AutohomeSDK;
 import com.walkline.autohome.inf.Topic;
 import com.walkline.autohome.inf.TopicList;
+import com.walkline.util.Function;
 import com.walkline.util.Enumerations.RefreshActions;
 import com.walkline.util.network.MyConnectionFactory;
 import com.walkline.util.network.WorkQueue;
@@ -67,12 +70,12 @@ public final class AutohomeScreen extends MainScreen
 				topicList = popupScreen.getTopicList();
 
 				if (popupScreen != null) {popupScreen = null;}
-				if (topicList != null) {refreshExperienceList(topicList);}
+				if (topicList != null) {refreshTopicList(topicList);}
 			}
 		});
     }
 
-    private void refreshExperienceList(TopicList topicList)
+    private void refreshTopicList(TopicList topicList)
     {
     	if (_listSet.getManager() == null) {_foreground.add(_listSet);}
 		if (_listSet.getFieldCount() > 0) {_listSet.deleteAll();}
@@ -90,7 +93,7 @@ public final class AutohomeScreen extends MainScreen
 				{
 					public void fieldChanged(Field field, int context)
 					{
-						if (context != FieldChangeListener.PROGRAMMATIC) {}
+						if (context != FieldChangeListener.PROGRAMMATIC) {showTopicDetailScreen();}
 					}
 				});
 
@@ -102,7 +105,7 @@ public final class AutohomeScreen extends MainScreen
 		{
 			UiApplication.getUiApplication().invokeLater(new Runnable()
 			{
-				public void run() {}//refreshExperienceListIcons();}
+				public void run() {refreshExperienceListIcons();}
 			});
 		}
     }
@@ -125,40 +128,60 @@ public final class AutohomeScreen extends MainScreen
 		}
     }
 
+    private void showTopicDetailScreen()
+    {
+    	ListStyleButtonField item = (ListStyleButtonField) _listSet.getFieldWithFocus();
+
+    	UiApplication.getUiApplication().pushScreen(new TopicDetailsScreen(_autohome, item.getUrl()));
+    }
+
     class DownloadImages implements Runnable
     {
-    	ListStyleButtonField _item;
+    	ListStyleButtonField item;
 		MyConnectionFactory cf = new MyConnectionFactory();
-    	MyConnectionFactory _factory = new MyConnectionFactory();
-    	HttpConnection _conn = null;
-    	InputStream inputStream = null;
+    	//MyConnectionFactory factory = new MyConnectionFactory();
+    	HttpConnection conn = null;
+    	//InputStream inputStream = null;
+		StringBuffer buffer = new StringBuffer();
+		String url;
 
-    	public DownloadImages(ListStyleButtonField item) {_item = item;}
+    	public DownloadImages(ListStyleButtonField item)
+    	{
+    		this.item = item;
+    		this.url = item.getThumbnailUrl();
+    	}
 
 		public void run()
 		{
-			if (_item.getThumbnailUrl().equalsIgnoreCase("")) {return;}
-
-			ConnectionDescriptor connd = _factory.getConnection(_item.getThumbnailUrl());
-
-			if (connd == null) {return;}
-
 			try {
-				_conn = (HttpConnection) connd.getConnection();
-				_conn.setRequestProperty(HttpProtocolConstants.HEADER_CONNECTION, HttpProtocolConstants.HEADER_KEEP_ALIVE);
+				if ((url == null) || url.equalsIgnoreCase("") || (cf == null)) {return;}
 
-				inputStream = _conn.openInputStream();
+				ConnectionDescriptor connd = cf.getConnection(url);
+				conn = (HttpConnection) connd.getConnection();
 
-				if (inputStream.available() > 0)
+				conn.setRequestProperty(HttpProtocolConstants.HEADER_CONNECTION, HttpProtocolConstants.HEADER_KEEP_ALIVE);
+				conn.setRequestProperty(HttpProtocolConstants.HEADER_REFERER, "http://www.autohome.com.cn");
+				//conn.setRequestProperty(HttpProtocolConstants.HEADER_USER_AGENT, System.getProperty("browser.useragent"));//"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1985.143 Safari/537.36");
+				//conn.setRequestProperty(HttpProtocolConstants.HEADER_REFERER, "http://www.weather.com.cn");
+
+				int resCode = conn.getResponseCode();
+
+				switch (resCode)
 				{
-					byte[] data = IOUtilities.streamToBytes(inputStream);
+					case HttpConnection.HTTP_OK: 
+					{
+						InputStream inputStream = conn.openInputStream();
+						int c;
 
-					if (data.length == _conn.getLength()) {_item.setThumbnail(data);}
+						while ((c = inputStream.read()) != -1) {buffer.append((char) c);}
+
+						item.setThumbnail(buffer.toString().getBytes());
+						inputStream.close();
+						break;
+					}
 				}
-
-				inputStream.close();
-				_conn.close();
-			} catch (IOException e) {}
+			} catch (Exception e) {}
+			  finally {if (conn != null) {try {conn.close(); conn = null;} catch (IOException e) {Function.errorDialog(e.toString());}}}
 		}
 	}
 }

@@ -34,16 +34,15 @@ public class ListStyleButtonField extends Field
     private static int COLOR_BACKGROUND_FOCUS = 0x186DEF;
 
     private static final boolean USING_LARGE_ICON = Display.getWidth()<640 ? false : true;
-    private Bitmap _iconStoryTitle;
-    private int _iconStoryTitleSize = 0;
-    private MyLabelFieldWithNewline _labelStoryTitle;
-    private MyLabelField _labelSectionTitle;
-    private MyLabelField _labelSectionDescription;
+    private Bitmap _iconTitle;
+    private int _iconTitleWidth = 0;
+    private int _iconTitleHeight = 0;
+    private MyLabelFieldWithNewline _labelTitle;
+    private MyLabelField _labelDescription;
 
     private String _thumbnailUrl;
     private byte[] _thumbnailData;
     private String _url;
-    private String _name;
     private int _id = 0;
 
     private int _rightOffset;
@@ -59,7 +58,7 @@ public class ListStyleButtonField extends Field
     {
         super(USE_ALL_WIDTH | Field.FOCUSABLE);
 
-        _labelStoryTitle = new MyLabelFieldWithNewline(title);
+        _labelTitle = new MyLabelFieldWithNewline(title);
 
         setFontSize();
     }
@@ -68,14 +67,16 @@ public class ListStyleButtonField extends Field
     {
         super(USE_ALL_WIDTH | Field.FOCUSABLE);
 
-        _labelStoryTitle = new MyLabelFieldWithNewline(topic.getTitle());
+        _labelTitle = new MyLabelFieldWithNewline(topic.getTitle());
+        _labelDescription = new MyLabelField(topic.getBbsName());
         _thumbnailUrl = topic.getSmallPic();
         _id = topic.getTopicId();
         _url = StringUtility.replace(AutohomeAppConfig.queryTopicRequestURL, "$TOPICID$", String.valueOf(_id));
 
-        _iconStoryTitle = USING_LARGE_ICON ? Bitmap.getBitmapResource("listIcon_large.png") : Bitmap.getBitmapResource("listIcon_small.png");
+        _iconTitle = USING_LARGE_ICON ? Bitmap.getBitmapResource("listIcon_large.png") : Bitmap.getBitmapResource("listIcon_small.png");
 
-        _iconStoryTitleSize = _iconStoryTitle.getWidth();
+        _iconTitleWidth = _iconTitle.getWidth();
+        _iconTitleHeight = _iconTitle.getHeight();
 
         setFontSize();
     }
@@ -84,36 +85,30 @@ public class ListStyleButtonField extends Field
 
     public void layout(int width, int height)
     {
-    	if (_iconStoryTitle != null)
+    	if (_iconTitle != null)
     	{
-            _leftOffset = _iconStoryTitle.getWidth() + HPADDING * 2;    		
+            _leftOffset = _iconTitle.getWidth() + HPADDING * 2;    		
     	} else {
     		_leftOffset = HPADDING * 2;
     	}
 
         _rightOffset = HPADDING;
 
-        if (_labelStoryTitle != null)
+        if (_labelTitle != null)
         {
-        	_labelStoryTitle.layout(width - _leftOffset - _rightOffset, height);
-            _labelHeight = _labelStoryTitle.getHeight();
+        	_labelTitle.layout(width - _leftOffset - _rightOffset, height);
+            _labelHeight = _labelTitle.getHeight();
         }
 
-        if (_labelSectionTitle != null)
+        if (_labelDescription != null)
         {
-        	_labelSectionTitle.layout(width - _leftOffset - _rightOffset, height);
-        	_labelHeight = _labelSectionTitle.getHeight();
-
-            if (_labelSectionDescription != null)
-            {
-            	_labelSectionDescription.layout(width - _leftOffset - _rightOffset, height);
-            	_labelHeight += _labelSectionDescription.getHeight();
-            }
+        	_labelDescription.layout(width - _leftOffset - _rightOffset, height);
+        	_labelHeight += _labelDescription.getHeight();
         }
 
-        if (_iconStoryTitle != null)
+        if (_iconTitle != null)
         {
-        	if (_labelHeight < _iconStoryTitle.getHeight()) {_labelHeight = _iconStoryTitle.getHeight();}
+        	if (_labelHeight < _iconTitle.getHeight()) {_labelHeight = _iconTitle.getHeight();}
         }
 
         setExtent(width, _labelHeight + 10);
@@ -128,12 +123,12 @@ public class ListStyleButtonField extends Field
 		if (_thumbnailData != null)
 		{
 			Bitmap newIcon = Bitmap.createBitmapFromBytes(_thumbnailData, 0, -1, 1);
-			newIcon = GPATools.ResizeTransparentBitmap(newIcon, _iconStoryTitleSize, _iconStoryTitleSize, Bitmap.FILTER_LANCZOS, Bitmap.SCALE_STRETCH);
+			newIcon = GPATools.ResizeTransparentBitmap(newIcon, _iconTitleWidth, _iconTitleHeight, Bitmap.FILTER_LANCZOS, Bitmap.SCALE_STRETCH);
 
 			BitmapMask mask = new BitmapMask(new XYEdges(2, 2, 2, 2), Bitmap.getBitmapResource("mask.png"));
 			mask.applyMask(newIcon);
 
-			_iconStoryTitle = newIcon;
+			_iconTitle = newIcon;
 
 			Manager m = getManager();
 			if (m != null) {m.invalidate();}
@@ -142,74 +137,44 @@ public class ListStyleButtonField extends Field
 
     public String getUrl() {return _url;}
 
-    public int getSectionId() {return _id;}
-
-    public String getSectionName() {return _name;}
-
     private void setFontSize()
     {
     	FONT_STORY_TITLE = AutohomeAppConfig.FONT_STORY_TITLE;
     	FONT_SECTION_TITLE = AutohomeAppConfig.FONT_SECTION_TITLE;
     	FONT_SECTION_DESCRIPTION = AutohomeAppConfig.FONT_SECTION_DESCRIPTION;
 
-    	if (_labelStoryTitle != null) {_labelStoryTitle.setFont(FONT_STORY_TITLE);}
-    	if (_labelSectionTitle != null) {_labelSectionTitle.setFont(FONT_STORY_TITLE);}
-    	if (_labelSectionDescription != null) {_labelSectionDescription.setFont(FONT_SECTION_DESCRIPTION);}
+    	if (_labelTitle != null) {_labelTitle.setFont(FONT_STORY_TITLE);}
+    	if (_labelDescription != null) {_labelDescription.setFont(FONT_SECTION_DESCRIPTION);}
     }
 
     protected void paint(Graphics g)
     {
         // News Title Bitmap
-    	if (_iconStoryTitle != null)
+    	if (_iconTitle != null)
     	{
-       		g.drawBitmap(HPADDING, (getHeight() - _iconStoryTitle.getHeight()) / 2, _iconStoryTitle.getWidth(), _iconStoryTitle.getHeight(), _iconStoryTitle, 0, 0);    		
+       		g.drawBitmap(HPADDING, (getHeight() - _iconTitle.getHeight()) / 2, _iconTitle.getWidth(), _iconTitle.getHeight(), _iconTitle, 0, 0);    		
     	}
 
         // News Title Text
-    	if (_labelStoryTitle != null)
+    	if (_labelTitle != null)
     	{
             try
             {
             	g.setFont(FONT_STORY_TITLE);
-            	g.pushRegion(_leftOffset, (getHeight() - _labelStoryTitle.getHeight()) / 2, _labelStoryTitle.getWidth(), _labelStoryTitle.getHeight(), 0, 0);
-            	_labelStoryTitle.paint(g);
+            	g.pushRegion(_leftOffset, HPADDING, _labelTitle.getWidth(), _labelTitle.getHeight(), 0, 0);
+            	_labelTitle.paint(g);
             } finally {g.popContext();}
     	}
 
-    	//Section Title Text
-    	if (_labelSectionTitle != null)
+    	if (_labelDescription != null)
     	{
-    		int top = 0;
-    		//int oldColor = g.getColor();
-
-    		if (_labelSectionDescription != null)
-    		{
-    			top = (getHeight() - _labelSectionTitle.getHeight() - _labelSectionDescription.getHeight()) / 2;
-
-        		try
-        		{
-        			g.setFont(FONT_SECTION_TITLE);
-        			g.pushRegion(_leftOffset, top, _labelSectionTitle.getWidth(), _labelSectionTitle.getHeight(), 0, 0);
-        			_labelSectionTitle.paint(g);
-        		} finally {g.popContext();}
-
-        		try
-        		{
-        			g.setFont(FONT_SECTION_DESCRIPTION);
-        			g.setColor(g.isDrawingStyleSet(Graphics.DRAWSTYLE_FOCUS) ? Color.WHITE : Color.GRAY);
-        			g.pushRegion(_leftOffset, getHeight() - _labelSectionDescription.getHeight() - HPADDING, _labelSectionDescription.getWidth(), _labelSectionDescription.getHeight(), 0, 0);
-        			_labelSectionDescription.paint(g);
-        		} finally {g.popContext();}
-    		} else {
-    			top = (getHeight() - _labelSectionTitle.getHeight()) /2;
-
-        		try
-        		{
-        			g.setFont(FONT_SECTION_TITLE);
-        			g.pushRegion(_leftOffset, top, _labelSectionTitle.getWidth(), _labelSectionTitle.getHeight(), 0, 0);
-        			_labelSectionTitle.paint(g);
-        		} finally {g.popContext();}
-    		}
+        	try
+        	{
+        		g.setFont(FONT_SECTION_DESCRIPTION);
+        		g.setColor(g.isDrawingStyleSet(Graphics.DRAWSTYLE_FOCUS) ? Color.WHITE : Color.GRAY);
+        		g.pushRegion(_leftOffset, getHeight() - _labelDescription.getHeight() - HPADDING, _labelDescription.getWidth(), _labelDescription.getHeight(), 0, 0);
+        		_labelDescription.paint(g);
+        	} finally {g.popContext();}
     	}
     }
 
