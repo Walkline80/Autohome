@@ -3,5 +3,6 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="res"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/net.rim.ejde.BlackBerryVMInstallType/BlackBerry JRE 6.0.0"/>
+	<classpathentry exported="true" kind="lib" path="res/regexp-me.jar" sourcepath="D:/workspace/regexp-me/src/me"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
