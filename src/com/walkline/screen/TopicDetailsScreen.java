@@ -74,15 +74,16 @@ public class TopicDetailsScreen extends MainScreen// implements OnShakeListener
 
 	private void refreshUI()
 	{
+		_browserField.requestContent(_url);
 		//String html = _experienceDetails.getContent();
 
-		try {
-			InputStream input = getClass().getResourceAsStream("/css/main");
-			String css = new String(IOUtilities.streamToBytes(input));
+		//try {
+			//InputStream input = getClass().getResourceAsStream("/css/main");
+			//String css = new String(IOUtilities.streamToBytes(input));
 
 			//_browserField.displayContent("<html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width, minimum-scale=1.0, maximum-scale=1.0'>" + css + "</head><body>" + new String(html.getBytes("utf-8")) + "</div></body></html>", "localhost://");
-		} catch (UnsupportedEncodingException e) {}
-		  catch (IOException e) {}
+		//} catch (UnsupportedEncodingException e) {}
+		//  catch (IOException e) {}
 	}
 
 	private void browseInBrowser()

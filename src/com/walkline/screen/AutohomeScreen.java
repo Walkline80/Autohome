@@ -6,6 +6,11 @@ import java.util.Vector;
 
 import javax.microedition.io.HttpConnection;
 
+import me.regexp.CharacterIterator;
+import me.regexp.RE;
+import me.regexp.RECompiler;
+import me.regexp.REProgram;
+import me.regexp.StreamCharacterIterator;
 import net.rim.device.api.io.IOUtilities;
 import net.rim.device.api.io.http.HttpProtocolConstants;
 import net.rim.device.api.io.transport.ConnectionDescriptor;
@@ -16,6 +21,7 @@ import net.rim.device.api.ui.FontFamily;
 import net.rim.device.api.ui.FontManager;
 import net.rim.device.api.ui.Ui;
 import net.rim.device.api.ui.UiApplication;
+import net.rim.device.api.ui.component.ButtonField;
 import net.rim.device.api.ui.container.MainScreen;
 
 import com.walkline.autohome.AutohomeSDK;
@@ -49,6 +55,34 @@ public final class AutohomeScreen extends MainScreen
 
         //setDefaultClose(false);
 
+		ButtonField btnTest = new ButtonField("Test", ButtonField.CONSUME_CLICK | ButtonField.NEVER_DIRTY);
+		btnTest.setChangeListener(new FieldChangeListener()
+		{
+			public void fieldChanged(Field field, int context)
+			{
+					try {
+						final RE r = new RE("<div class=\"post-main\"*>(.*?)<div style=\"clear:both\"></div></div></div>");
+						InputStream input = getClass().getResourceAsStream("/html");
+						String html = new String(IOUtilities.streamToBytes(input));
+						StreamCharacterIterator stream = new StreamCharacterIterator(input);
+
+						if (r.match(stream, 1))
+						{
+							Function.errorDialog("found");
+							String result = r.getParen(1);
+							result.charAt(1);
+						}
+						//RECompiler re = new RECompiler();
+						//REProgram pro = re.compile("<div class=\"post-main\"*>(.*?)<div style=\"clear:both\"></div></div></div>");
+						//pro.setInstructions(html.toCharArray(), html.length());
+
+						//r.setProgram(pro);
+						//if (r.match(, i)(html)) {Function.errorDialog("found");}
+					} catch (IOException e) {}
+				}
+		});
+
+		add(btnTest);
 		add(_foreground);
 
         UiApplication.getUiApplication().invokeLater(new Runnable()
@@ -139,9 +173,7 @@ public final class AutohomeScreen extends MainScreen
     {
     	ListStyleButtonField item;
 		MyConnectionFactory cf = new MyConnectionFactory();
-    	//MyConnectionFactory factory = new MyConnectionFactory();
     	HttpConnection conn = null;
-    	//InputStream inputStream = null;
 		StringBuffer buffer = new StringBuffer();
 		String url;
 
@@ -162,7 +194,6 @@ public final class AutohomeScreen extends MainScreen
 				conn.setRequestProperty(HttpProtocolConstants.HEADER_CONNECTION, HttpProtocolConstants.HEADER_KEEP_ALIVE);
 				conn.setRequestProperty(HttpProtocolConstants.HEADER_REFERER, "http://www.autohome.com.cn");
 				//conn.setRequestProperty(HttpProtocolConstants.HEADER_USER_AGENT, System.getProperty("browser.useragent"));//"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1985.143 Safari/537.36");
-				//conn.setRequestProperty(HttpProtocolConstants.HEADER_REFERER, "http://www.weather.com.cn");
 
 				int resCode = conn.getResponseCode();
 

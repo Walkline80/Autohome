@@ -19,6 +19,7 @@ public class AutohomeAppConfig
 	public static final String queryTopicListRequestURL = "http://app.api.autohome.com.cn/autov4.1.5/club/jingxuantopic-a2-pm2-v4.1.1-c104-p$PAGECOUNT$-s20.html";
 	//public static final String queryExperienceDetailsRequestURL = "http://plugin.smzdm.com/plugin/api/mobile/v5/c_index.php?f=android&display_mode=2&fav=0&mod=get_experience_info&postID=$POSTID$&delay=1&filter=1&key=&clsid=0&mode=0&top=0";
 	public static final String queryTopicRequestURL = "http://forum.app.autohome.com.cn/autov4.1.5/forum/club/topiccontent-a2-pm2-v4.1.1-t$TOPICID$-o0-p1-s20-c1-nt0-fs0-sp0-al1-cw320.html";
+	//public static final String queryTopicRequestURL = "http://forum.app.autohome.com.cn/autov4.1.5/forum/club/topiccontent-a2-pm2-v4.1.1-t32401910-o0-p1-s20-c0-nt0-fs0-sp0-al1-cw320.html";
 
 	public static final Background bgColor_Gradient=BackgroundFactory.createLinearGradientBackground(Color.GRAY, Color.GRAY, Color.BLACK, Color.BLACK);
 
