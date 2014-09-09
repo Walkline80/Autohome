@@ -1,9 +1,9 @@
 package com.walkline.autohome.dao;
 
-import org.json.me.JSONObject;
 import com.walkline.autohome.AutohomeException;
 import com.walkline.autohome.AutohomeSDK;
 import com.walkline.autohome.inf.Topic;
+import com.walkline.util.json.JSONObject;
 
 public class AutohomeTopic extends AutohomeObject implements Topic
 {

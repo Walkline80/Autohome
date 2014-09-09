@@ -44,6 +44,7 @@ public class ListStyleButtonField extends Field
     private byte[] _thumbnailData;
     private String _url;
     private int _id = 0;
+    private boolean _hasThumbnail = false;
 
     private int _rightOffset;
     private int _leftOffset;
@@ -132,10 +133,14 @@ public class ListStyleButtonField extends Field
 
 			Manager m = getManager();
 			if (m != null) {m.invalidate();}
+
+			_hasThumbnail = true;
 		}
     }
 
     public String getUrl() {return _url;}
+
+    public boolean hasThumbnail() {return _hasThumbnail;}
 
     private void setFontSize()
     {
@@ -161,7 +166,14 @@ public class ListStyleButtonField extends Field
             try
             {
             	g.setFont(FONT_STORY_TITLE);
-            	g.pushRegion(_leftOffset, HPADDING, _labelTitle.getWidth(), _labelTitle.getHeight(), 0, 0);
+
+            	if (_iconTitle != null)
+            	{
+            		g.pushRegion(_leftOffset, HPADDING, _labelTitle.getWidth(), _labelTitle.getHeight(), 0, 0);	
+            	} else {
+            		g.pushRegion((getWidth() - _labelTitle.getWidth()) / 2, (getHeight() - _labelTitle.getHeight()) / 2, _labelTitle.getWidth(), _labelTitle.getHeight(), 0, 0);
+            	}
+            	
             	_labelTitle.paint(g);
             } finally {g.popContext();}
     	}

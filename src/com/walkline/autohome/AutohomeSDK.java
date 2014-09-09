@@ -1,12 +1,14 @@
 package com.walkline.autohome;
 
-import org.json.me.JSONObject;
-import org.json.me.JSONTokener;
+import java.io.UnsupportedEncodingException;
+
 import com.walkline.app.AutohomeAppConfig;
 import com.walkline.autohome.dao.AutohomeTopicList;
 import com.walkline.autohome.inf.TopicList;
 import com.walkline.util.Function;
 import com.walkline.util.StringUtility;
+import com.walkline.util.json.JSONObject;
+import com.walkline.util.json.JSONTokener;
 import com.walkline.util.network.HttpClient;
 import com.walkline.util.network.MyConnectionFactory;
 
@@ -36,6 +38,26 @@ public class AutohomeSDK
 			jsonObject = doRequest(api);
 
 			result = (jsonObject != null ? getTopicList(jsonObject) : null);
+		} catch (AutohomeException e) {Function.errorDialog(e.toString());}
+
+		return result;
+	}
+
+	//private StringBuffer getTopicDetails(JSONObject jsonObject) throws AutohomeException {return new AutohomeTopicList(this, jsonObject);}
+	public String getTopicDetails(String topicId) throws AutohomeException {return getTopicDetails(topicId, null);}
+	private String getTopicDetails(final String topicId, final Object state)
+	{
+		String result = null;
+		String stringObject = null;
+
+		try {
+			String api = AutohomeAppConfig.queryTopicRequestURL;
+			api = StringUtility.replace(api, "$TOPICID$", topicId);
+			stringObject = new String(doRequestRAW(api));
+
+			try {
+				result = (stringObject != null ? new String(stringObject.getBytes(), "utf-8") : null);
+			} catch (UnsupportedEncodingException e) {}
 		} catch (AutohomeException e) {Function.errorDialog(e.toString());}
 
 		return result;

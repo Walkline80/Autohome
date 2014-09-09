@@ -9,6 +9,7 @@ import net.rim.device.api.ui.container.PopupScreen;
 import net.rim.device.api.ui.container.VerticalFieldManager;
 import com.walkline.autohome.AutohomeException;
 import com.walkline.autohome.AutohomeSDK;
+import com.walkline.autohome.inf.Topic;
 import com.walkline.autohome.inf.TopicList;
 import com.walkline.util.Enumerations.RefreshActions;
 import com.walkline.util.Function;
@@ -19,6 +20,7 @@ public class RefreshContentsScreen extends PopupScreen
 	AutohomeSDK _autohome;
 	String _param;
 	TopicList _topicList;
+	String _topicDetails;
 
 	public RefreshContentsScreen(AutohomeSDK autohome, String param, int action)
 	{
@@ -33,6 +35,9 @@ public class RefreshContentsScreen extends PopupScreen
 		{
 			case RefreshActions.TOPICLIST:
 				thread = new Thread(new TopicListRunnable());
+				break;
+			case RefreshActions.TOPICDETAILS:
+				thread = new Thread(new TopicDetailsRunnable());
 				break;
 		}
 
@@ -54,7 +59,24 @@ public class RefreshContentsScreen extends PopupScreen
 		}
 	}
 
+	class TopicDetailsRunnable implements Runnable
+	{
+		public void run()
+		{
+			try {
+				_topicDetails = _autohome.getTopicDetails(_param);
+
+				Application.getApplication().invokeLater(new Runnable()
+				{
+					public void run() {onClose();}
+				});
+			} catch (AutohomeException e) {Function.errorDialog(e.toString());}
+		}
+	}
+
 	public TopicList getTopicList() {return _topicList;}
+
+	public String getTopicDetail() {return _topicDetails;}
 
 	public boolean onClose()
 	{

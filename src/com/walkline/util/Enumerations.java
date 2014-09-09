@@ -5,7 +5,7 @@ public class Enumerations
 	public static class RefreshActions
 	{
 		public static final int TOPICLIST = 0;
-		//public static final int HOTSTORIES = 1;
+		public static final int TOPICDETAILS = 1;
 		//public static final int EXPERIENCEDETAILS = 1;
 		//public static final int SECTIONS = 3;
 		//public static final int SECTIONSTORIES = 4;

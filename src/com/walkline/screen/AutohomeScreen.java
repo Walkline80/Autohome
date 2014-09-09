@@ -47,6 +47,7 @@ public final class AutohomeScreen extends MainScreen
     {        
     	super (NO_VERTICAL_SCROLL | USE_ALL_HEIGHT | NO_SYSTEM_MENU_ITEMS);
 
+    	setTitle("汽车之家 - 媳妇当车模");
 		try {
 			FontFamily family = FontFamily.forName("BBGlobal Sans");
 			Font appFont = family.getFont(Font.PLAIN, 8, Ui.UNITS_pt);
@@ -55,34 +56,6 @@ public final class AutohomeScreen extends MainScreen
 
         //setDefaultClose(false);
 
-		ButtonField btnTest = new ButtonField("Test", ButtonField.CONSUME_CLICK | ButtonField.NEVER_DIRTY);
-		btnTest.setChangeListener(new FieldChangeListener()
-		{
-			public void fieldChanged(Field field, int context)
-			{
-					try {
-						final RE r = new RE("<div class=\"post-main\"*>(.*?)<div style=\"clear:both\"></div></div></div>");
-						InputStream input = getClass().getResourceAsStream("/html");
-						String html = new String(IOUtilities.streamToBytes(input));
-						StreamCharacterIterator stream = new StreamCharacterIterator(input);
-
-						if (r.match(stream, 1))
-						{
-							Function.errorDialog("found");
-							String result = r.getParen(1);
-							result.charAt(1);
-						}
-						//RECompiler re = new RECompiler();
-						//REProgram pro = re.compile("<div class=\"post-main\"*>(.*?)<div style=\"clear:both\"></div></div></div>");
-						//pro.setInstructions(html.toCharArray(), html.length());
-
-						//r.setProgram(pro);
-						//if (r.match(, i)(html)) {Function.errorDialog("found");}
-					} catch (IOException e) {}
-				}
-		});
-
-		add(btnTest);
 		add(_foreground);
 
         UiApplication.getUiApplication().invokeLater(new Runnable()
@@ -112,14 +85,14 @@ public final class AutohomeScreen extends MainScreen
     private void refreshTopicList(TopicList topicList)
     {
     	if (_listSet.getManager() == null) {_foreground.add(_listSet);}
-		if (_listSet.getFieldCount() > 0) {_listSet.deleteAll();}
+		//if (_listSet.getFieldCount() > 0) {_listSet.deleteAll();}
 
-		Vector experiencesVector = topicList.getTopicList();
+		Vector topicVector = topicList.getTopicList();
 		Topic topic;
 
-		for (int i=0; i<experiencesVector.size(); i++)
+		for (int i=0; i<topicVector.size(); i++)
 		{
-			topic = (Topic) experiencesVector.elementAt(i);
+			topic = (Topic) topicVector.elementAt(i);
 			if (topic != null)
 			{
 				_item = new ListStyleButtonField(topic);
@@ -135,18 +108,38 @@ public final class AutohomeScreen extends MainScreen
 			}
 		}
 
+		final int currentPage = topicList.getPageIndex() + 1;
+		if (topicList.getPageIndex() < topicList.getPageCount())
+		{
+			_item = new ListStyleButtonField("下一页");
+			_item.setChangeListener(new FieldChangeListener()
+			{
+				public void fieldChanged(Field field, int context)
+				{
+					if (context != FieldChangeListener.PROGRAMMATIC)
+					{
+						int currentPos = _listSet.getFieldWithFocusIndex();
+						_listSet.delete(field);
+						
+						getTopicList(String.valueOf(currentPage));
+					}
+				}
+			});
+			_listSet.add(_item);
+		}
+
 		if (_listSet.getFieldCount() > 0)
 		{
 			UiApplication.getUiApplication().invokeLater(new Runnable()
 			{
-				public void run() {refreshExperienceListIcons();}
+				public void run() {refreshTopicListIcons();}
 			});
 		}
     }
 
-    private void refreshExperienceListIcons()
+    private void refreshTopicListIcons()
     {
-		ListStyleButtonField item;
+		ListStyleButtonField item = null;
 
 		_queue.removeAll();
 
@@ -157,7 +150,10 @@ public final class AutohomeScreen extends MainScreen
 			if (object instanceof ListStyleButtonField)
 			{
 				item = (ListStyleButtonField) object;
-				_queue.execute(new DownloadImages(item));
+				if (!item.hasThumbnail())
+				{
+					_queue.execute(new DownloadImages(item));
+				}
 			}
 		}
     }
